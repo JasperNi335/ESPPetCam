@@ -1,0 +1,8 @@
+
+.pio/
+.vscode/
+*.elf
+*.bin
+*.map
+*.pyc
+*.DS_Store
