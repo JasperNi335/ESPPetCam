@@ -1,7 +1,7 @@
 #include <Arduino.h>
+#include <WiFi.h>
 #include "camera.h"
-
-bool sendPhotoSerial();
+#include "keys.h"
 
 void setup() {
   // sets delay for clean output
