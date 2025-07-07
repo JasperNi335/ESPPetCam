@@ -4,6 +4,11 @@
 #include <Arduino.h>
 #include "esp_camera.h"
 
+
+/*-----------------------------------------
+Default Camera methods
+-----------------------------------------*/
+
 // Initilase the camera
 bool initCamera();
 
@@ -15,5 +20,16 @@ camera_fb_t* cameraCapturePhoto();
 
 // deInitalise camera
 void deInitCamera();
+
+/*-----------------------------------------
+Serial Camera methods
+-----------------------------------------*/
+
+// Serial Communication for camera
+bool sendPhotoSerial();
+
+/*-----------------------------------------
+Wifi Camera methods
+-----------------------------------------*/
 
 #endif // CAMERA_H
