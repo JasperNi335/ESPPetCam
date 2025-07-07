@@ -7,6 +7,9 @@
 // Initilase the camera
 bool initCamera();
 
+// set camera settings
+void setCameraSettings();
+
 // Capture a photo, Warning must release returned pointer
 camera_fb_t* cameraCapturePhoto();
 
