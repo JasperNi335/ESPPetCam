@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "camera.h"
+#include "network.h"
+#include "keys.h"
 
 bool sendPhotoSerial();
 
