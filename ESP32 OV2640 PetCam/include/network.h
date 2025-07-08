@@ -2,7 +2,7 @@
 #define NETWORK_H
 
 #include <Arduino.h>
-#include <WiFi.h>
+#include "esp_wifi.h"
 #include "keys.h"
 
 void setupWiFi();
