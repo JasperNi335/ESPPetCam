@@ -5,10 +5,7 @@ static const char* TAG = "HTTP";
 
 bool pingServer(const char* url){
     // if not conncected to wifi dont 
-    if (!isWiFiConnected()){
-        ESP_LOGE("WiFi", "WiFi NOT Connected");
-        return false;
-    }
+    if (!isWiFiConnected()) return false;
 
     // quickly check if the server is online via get method
     esp_http_client_config_t config = {
@@ -25,20 +22,40 @@ bool pingServer(const char* url){
     // pings the server and checks response
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK){
-        ESP_LOGE(TAG, "Conncection to http server successful");\
+        ESP_LOGE(TAG, "Conncection to http server successful");
         return true;
     }else{
-        ESP_LOGE(TAG, "Conncection to http server failed");\
+        ESP_LOGE(TAG, "Conncection to http server failed");
         return false;
     }
 }
 
 bool sendToServer(const char* url, const char* data){
     // quick check for server status
-    if (!pingServer(url)){
-        ESP_LOGE(TAG, "Failed to ping server %s", url);
+    if (!pingServer(url)) return false;
+
+    // make client
+    esp_http_client_config_t config = {
+        .url = url,
+        .method = HTTP_METHOD_GET,
+    };
+
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK){
+        ESP_LOGE(TAG, "POST to http server successful");
+        return true;
+    }else{
+        ESP_LOGE(TAG, "POST to http server failed");
+        ESP_LOGE(TAG, "Error: %s", esp_err_to_name(err));
         return false;
     }
+}
+
+bool recieveFromServer(const char* url){
+    // quick check for server status
+    if (!pingServer(url)) return false;
 
     // make client
     esp_http_client_config_t config = {
@@ -48,16 +65,27 @@ bool sendToServer(const char* url, const char* data){
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_http_client_set_header(client, "Content-Type", "java-app/json");
-    esp_http_client_set_post_field(client, data, strlen(data));
 
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK){
-        ESP_LOGE(TAG, "POST to http server successful");\
+        ESP_LOGE(TAG, "GET from http server successful");
+
+        char buffer[256];
+        int content_length = esp_http_client_read_response(client, buffer, sizeof(buffer) - 1); 
+        if (content_length >= 0){
+            buffer[content_length] = '\0'; // null termination
+            ESP_LOGE("TAG", "Server response : %s", buffer);
+
+            // manage json package from server 
+            // -- implement this later --
+        }else{
+            ESP_LOGE(TAG, "Failed to read response");
+            return false;
+        }
         return true;
     }else{
-        ESP_LOGE(TAG, "POST to http server failed");\
+        ESP_LOGE(TAG, "GET from http server failed");
+        ESP_LOGE(TAG, "Error: %s", esp_err_to_name(err));
         return false;
     }
 }
-
-bool recieveFromServer(){}
