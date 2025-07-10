@@ -43,8 +43,11 @@ camera_config_t camera_config = {
     .frame_size     = FRAMESIZE_SVGA,
     .jpeg_quality   = 4,
     .fb_count       = 1
-  };
-  
+};
+
+/*-----------------------------------------
+Default Camera methods
+-----------------------------------------*/
 
 bool initCamera(){
     esp_err_t err = esp_camera_init(&camera_config);
@@ -55,7 +58,7 @@ bool initCamera(){
     Serial.printf("Camera Init Successful\n");
 
     // take a few starting photos to fix green tint
-    for (int i = 0; i < 5; i++){
+    for (int i = 0; i < 100; i++){
         camera_fb_t* fb = cameraCapturePhoto();
 
         if (fb) esp_camera_fb_return(fb);
@@ -109,3 +112,47 @@ camera_fb_t* cameraCapturePhoto(){
 void deInitCamera(){
     esp_camera_deinit();
 }
+
+/*-----------------------------------------
+Serial Camera methods
+-----------------------------------------*/
+
+bool sendPhotoSerial(){
+  // try to capture image
+  camera_fb_t* fb = cameraCapturePhoto();
+
+  // if image is sucessfully captured
+  if (fb){
+      uint32_t size = fb->len;
+
+      Serial.printf("Captured image size: %zu bytes\n", size);
+
+      // sends image in smaller packages
+      Serial.println("IMAGE_START");
+      Serial.write((uint8_t*)&size, sizeof(size));
+
+      // send in chunks of 64
+      size_t sent = 0;
+      while(sent < size){
+        size_t chunk = 64;
+        if (sent + chunk > size) chunk = size - sent;
+
+        Serial.write(fb->buf + sent, chunk);
+
+        sent += chunk;
+        delay(1);
+      }
+
+      Serial.println("IMAGE_END");
+
+      esp_camera_fb_return(fb);
+      return true;
+  }
+  return false;
+}
+
+
+/*-----------------------------------------
+Wifi Camera methods
+-----------------------------------------*/
+
