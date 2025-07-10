@@ -23,24 +23,27 @@ public class App {
 
     static class StatusHandler implements HttpHandler {
         public void handle(HttpExchange exchange) throws IOException{
-            String response = "OK";
+            String response = "online";
+            exchange.getResponseHeaders().add("Content-Type", "text/plain");
             exchange.sendResponseHeaders(200, response.length());
 
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
+            os.flush();
             os.close();
         }
     }
 
     static class UploadHandler implements HttpHandler{
         public void handle(HttpExchange exchange) throws IOException{
-            if ("Post".equals(exchange.getRequestMethod())){
+            if ("POST".equals(exchange.getRequestMethod())){
                 String recieved = new String(exchange.getRequestBody().readAllBytes());
                 System.out.println("Recieved from ESP32: " + recieved);
 
                 String response = "Recieved";
                 OutputStream os = exchange.getResponseBody();
                 os.write(response.getBytes());
+                os.flush();
                 os.close();
             }else{
                 exchange.sendResponseHeaders(405, -1);
