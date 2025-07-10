@@ -26,14 +26,7 @@ void setup() {
 }
 
 void loop() {
-  /*
-  if (sendPhotoSerial()) {Serial.println("photo taken and sent\n");
-  }else {Serial.println("no photo taken\n");}
-
-  Serial.println("Functioning\n");
-  */
-
-  isWiFiConnected();
+  pingServer(SERVER_URL);
   delay(5000);
 }
 

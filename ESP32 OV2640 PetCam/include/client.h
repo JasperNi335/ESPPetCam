@@ -11,6 +11,6 @@ bool pingServer(const char* url);
 bool sendToServer(const char* url, const char* data);
 
 // recieve data via http/s
-bool recieveFromServer();
+bool recieveFromServer(const char* url);
 
 #endif // CLIENT_H
