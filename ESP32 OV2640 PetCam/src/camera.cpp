@@ -151,7 +151,6 @@ bool sendPhotoSerial(){
   return false;
 }
 
-
 /*-----------------------------------------
 Wifi Camera methods
 -----------------------------------------*/

@@ -1,10 +1,9 @@
 #define CONFIG_ARDUHAL_LOG_DEFAULT_LEVEL ARDUHAL_LOG_LEVEL_INFO
 #include <Arduino.h>
+#include <WiFi.h>
 #include "camera.h"
 #include "network.h"
 #include "keys.h"
-
-bool sendPhotoSerial();
 
 void setup() {
   // sets delay for clean output
