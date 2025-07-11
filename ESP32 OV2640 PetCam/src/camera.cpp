@@ -43,7 +43,7 @@ camera_config_t camera_config = {
     .ledc_channel   = LEDC_CHANNEL_0,
     .pixel_format   = PIXFORMAT_JPEG,
     .frame_size     = FRAMESIZE_SVGA,
-    .jpeg_quality   = 4,
+    .jpeg_quality   = 3,
     .fb_count       = 1
 };
 
@@ -60,7 +60,7 @@ bool initCamera(){
     Serial.printf("Camera Init Successful\n");
 
     // take a few starting photos to fix green tint
-    for (int i = 0; i < 100; i++){
+    for (int i = 0; i < 10; i++){
         camera_fb_t* fb = cameraCapturePhoto();
 
         if (fb) esp_camera_fb_return(fb);
@@ -85,7 +85,7 @@ void setCameraSettings(){
     s->set_exposure_ctrl(s, 0);  // 0 = disable , 1 = enable
     s->set_aec2(s, 0);           // 0 = disable , 1 = enable
     s->set_ae_level(s, 0);       // -2 to 2
-    s->set_aec_value(s, 300);    // 0 to 1200
+    s->set_aec_value(s, 1200);    // 0 to 1200
     s->set_gain_ctrl(s, 1);      // 0 = disable , 1 = enable
     s->set_agc_gain(s, 0);       // 0 to 30
     s->set_gainceiling(s, (gainceiling_t)0);  // 0 to 6
@@ -141,7 +141,7 @@ char* fb_to_b64(camera_fb_t* frame_buffer){
         free(output_b64_buffer);
         return nullptr;
     }
-
+    esp_camera_fb_return(frame_buffer);
     output_b64_buffer[output_len] = '\0';
     return output_b64_buffer;
 }
