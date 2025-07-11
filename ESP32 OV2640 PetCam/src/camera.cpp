@@ -17,6 +17,8 @@
 #define HREF_GPIO_NUM  23
 #define PCLK_GPIO_NUM  22
 
+const char* TAG = "CAMERA";
+
 camera_config_t camera_config = {
     .pin_pwdn       = PWDN_GPIO_NUM,
     .pin_reset      = RESET_GPIO_NUM,
@@ -107,6 +109,41 @@ camera_fb_t* cameraCapturePhoto(){
         return nullptr;
     }
     return fb;
+}
+
+// loads the buffer from the camera to a base 64 format
+// caller must free the buffer after use
+char* fb_to_b64(camera_fb_t* frame_buffer){
+    if (!frame_buffer || !frame_buffer->buf || frame_buffer->len == 0){
+        ESP_LOGE(TAG, "Empty or Null frame buffer");
+        return nullptr;
+    }
+
+    // turns 3 bytes to 4 bytes
+    // plus 2 is for rounding up
+    size_t b64_len = 4 * ((frame_buffer->len + 2) / 3);
+    char* output_b64_buffer = (char*)malloc(b64_len + 1);
+
+    if (!output_b64_buffer){
+        ESP_LOGE(TAG, "Failed to allocate memory");
+        return nullptr;
+    }
+
+    size_t output_len = 0;
+    esp_err_t err = mbedtls_base64_encode((unsigned char*)output_b64_buffer, 
+                                          b64_len + 1,
+                                          &output_len, 
+                                          frame_buffer->buf, 
+                                          frame_buffer->len);
+
+    if (err != ESP_OK){
+        ESP_LOGE("Encode", "Encoding failed, Error: %s", err);
+        free(output_b64_buffer);
+        return nullptr;
+    }
+
+    output_b64_buffer[output_len] = '\0';
+    return output_b64_buffer;
 }
 
 void deInitCamera(){
