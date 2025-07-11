@@ -1,8 +1,4 @@
-#include <String.h>
 #include "network.h"
-#include "esp_event.h"
-#include "esp_log.h"
-#include "nvs_flash.h"
 
 #define ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_PSK
 #define MAX_NETWORK_SCAN 20
