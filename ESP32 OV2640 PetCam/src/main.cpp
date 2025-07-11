@@ -3,6 +3,7 @@
 #include <WiFi.h>
 #include "camera.h"
 #include "network.h"
+#include "client.h"
 #include "keys.h"
 
 void setup() {
@@ -26,7 +27,14 @@ void setup() {
 }
 
 void loop() {
-  pingServer(SERVER_URL);
+
+  camera_fb_t* fb = cameraCapturePhoto();
+  if (fb){
+    char* image = createImagePackage(fb);
+    sendToServer(SERVER_URL, image);
+    free(image);
+  }
+
   delay(5000);
 }
 

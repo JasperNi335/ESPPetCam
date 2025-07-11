@@ -1,4 +1,5 @@
 #include "client.h"
+#include "camera.h"
 #include "network.h"
 
 static const char* TAG = "HTTP";
@@ -18,6 +19,20 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
             break;
     }
     return ESP_OK;
+}
+
+char* createImagePackage(camera_fb_t* image_pointer){
+    cJSON* json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "device", "ESP32_CAM_#0");
+
+    char* fb_pointer = fb_to_b64(image_pointer);
+    cJSON_AddStringToObject(json, "image", fb_pointer);
+    char* json_image_output = cJSON_PrintUnformatted(json);
+    cJSON_Delete(json);
+
+    // free buffer from fb_to_b64
+    free(fb_pointer);
+    return json_image_output;
 }
 
 bool pingServer(const char* url){
@@ -62,6 +77,9 @@ bool sendToServer(const char* url, const char* data){
     };
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_http_client_set_header(client, "Content-Type", "application/json");
+
+    esp_err_t add_data = esp_http_client_set_post_field(client, data, strlen(data));
 
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK){
@@ -87,7 +105,6 @@ bool recieveFromServer(const char* url){
     };
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_http_client_set_header(client, "Content-Type", "application/json");
 
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK){
