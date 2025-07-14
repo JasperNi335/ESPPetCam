@@ -96,10 +96,7 @@ bool scanWiFi(String ssid_target){
         }
     }
 
-    if (ssid_target){
-        if (!targetFound) ESP_LOGE(TAG, "Target SSID: %s not found", ssid_target);
-    }
-
+    if (ssid_target && !targetFound) ESP_LOGE(TAG, "Target SSID: %s not found", ssid_target);
     return targetFound;
 }
 

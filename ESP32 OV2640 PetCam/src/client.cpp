@@ -54,16 +54,16 @@ bool pingServer(const char* url){
 
     // pings the server and checks response
     esp_err_t err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        int status_code = esp_http_client_get_status_code(client);
-        ESP_LOGE(TAG, "Status code: %d", status_code);
-        esp_http_client_cleanup(client);
-        return true;
-    } else {
+    if (err != ESP_OK) {
         ESP_LOGE(TAG, "Request failed: %s", esp_err_to_name(err));
         esp_http_client_cleanup(client);
         return false;
     }
+
+    int status_code = esp_http_client_get_status_code(client);
+    ESP_LOGE(TAG, "Status code: %d", status_code);
+    esp_http_client_cleanup(client);
+    return true;
 }
 
 bool sendToServer(const char* url, const char* data){
@@ -82,16 +82,16 @@ bool sendToServer(const char* url, const char* data){
     esp_err_t add_data = esp_http_client_set_post_field(client, data, strlen(data));
 
     esp_err_t err = esp_http_client_perform(client);
+    esp_http_client_cleanup(client);
+
     if (err == ESP_OK){
-        ESP_LOGE(TAG, "POST to http server successful");
-        esp_http_client_cleanup(client);
-        return true;
-    }else{
         ESP_LOGE(TAG, "POST to http server failed");
         ESP_LOGE(TAG, "Error: %s", esp_err_to_name(err));
-        esp_http_client_cleanup(client);
         return false;
     }
+    
+    ESP_LOGE(TAG, "POST to http server successful");
+    return true;
 }
 
 bool recieveFromServer(const char* url){
@@ -107,27 +107,28 @@ bool recieveFromServer(const char* url){
     esp_http_client_handle_t client = esp_http_client_init(&config);
 
     esp_err_t err = esp_http_client_perform(client);
-    if (err == ESP_OK){
-        ESP_LOGE(TAG, "GET from http server successful");
-
-        char buffer[256];
-        int content_length = esp_http_client_read_response(client, buffer, sizeof(buffer) - 1); 
-        if (content_length >= 0){
-            buffer[content_length] = '\0'; // null termination
-            ESP_LOGE(TAG, "Server response : %s", buffer);
-
-            // manage json package from server 
-            // -- implement this later --
-        }else{
-            ESP_LOGE(TAG, "Failed to read response");
-            return false;
-        }
-        esp_http_client_cleanup(client);
-        return true;
-    }else{
+    if (err != ESP_OK){
         ESP_LOGE(TAG, "GET from http server failed");
         ESP_LOGE(TAG, "Error: %s", esp_err_to_name(err));
         esp_http_client_cleanup(client);
         return false;
     }
+    ESP_LOGE(TAG, "GET from http server successful");
+
+    char buffer[256];
+    int content_length = esp_http_client_read_response(client, buffer, sizeof(buffer) - 1); 
+
+    if (content_length < 0){
+        ESP_LOGE(TAG, "Failed to read response");
+        return false;
+    }
+
+    buffer[content_length] = '\0'; // null termination
+    ESP_LOGE(TAG, "Server response : %s", buffer);
+
+    // manage json package from server 
+    // -- implement this later --
+    
+    esp_http_client_cleanup(client);
+    return true;
 }
