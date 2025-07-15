@@ -1,9 +1,9 @@
 #define CONFIG_ARDUHAL_LOG_DEFAULT_LEVEL ARDUHAL_LOG_LEVEL_INFO
 #include <Arduino.h>
-#include <WiFi.h>
 #include "camera.h"
 #include "network.h"
 #include "client.h"
+#include "server.h"
 #include "keys.h"
 
 void setup() {
@@ -24,16 +24,22 @@ void setup() {
   setCameraSettings();
 
   setupWiFi();
+
+  startServer();
 }
 
 void loop() {
 
+  /*
   camera_fb_t* fb = cameraCapturePhoto();
   if (fb){
     char* image = createImagePackage(fb);
     sendToServer(SERVER_URL, image);
     free(image);
-  }
+  }*/
+
+  //getServerStatus();
+
 
   delay(5000);
 }
