@@ -113,6 +113,8 @@ void setConfigs(String ssid, String pass){
 }
 
 void setupWiFi(){
+    // make this method also do something with previous passwords or remembered networks
+
     // make sure flash memory is not corrupted etc
     initNVS();
 
