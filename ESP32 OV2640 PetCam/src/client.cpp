@@ -1,6 +1,4 @@
 #include "client.h"
-#include "camera.h"
-#include "network.h"
 
 static const char* TAG = "HTTP";
 
