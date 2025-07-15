@@ -17,7 +17,7 @@
 #define HREF_GPIO_NUM  23
 #define PCLK_GPIO_NUM  22
 
-const char* TAG = "CAMERA";
+static const char* TAG = "CAMERA";
 
 camera_config_t camera_config = {
     .pin_pwdn       = PWDN_GPIO_NUM,
@@ -42,8 +42,8 @@ camera_config_t camera_config = {
     .ledc_timer     = LEDC_TIMER_0,
     .ledc_channel   = LEDC_CHANNEL_0,
     .pixel_format   = PIXFORMAT_JPEG,
-    .frame_size     = FRAMESIZE_SVGA,
-    .jpeg_quality   = 3,
+    .frame_size     = FRAMESIZE_HVGA,
+    .jpeg_quality   = 10,
     .fb_count       = 1
 };
 

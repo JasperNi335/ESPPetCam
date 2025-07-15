@@ -20,6 +20,7 @@ void deInitCamera();
 void setCameraSettings();
 
 // Capture a photo, Warning must release returned pointer
+// use esp_camera_fb_return(fb)
 camera_fb_t* cameraCapturePhoto();
 
 // converts frame buffer pointer to base64
