@@ -4,6 +4,7 @@
 #include "network.h"
 #include "client.h"
 #include "server.h"
+#include "bluetooth.h"
 #include "keys.h"
 
 void setup() {
@@ -23,9 +24,11 @@ void setup() {
 
   setCameraSettings();
 
-  setupWiFi();
+  //setupWiFi();
 
-  startServer();
+  //startServer();
+
+  startBtServer();
 }
 
 void loop() {
