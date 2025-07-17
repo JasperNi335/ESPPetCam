@@ -37,7 +37,7 @@ static void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *pa
                 esp_bt_pin_code_t pin_code = {0};
                 esp_bt_gap_pin_reply(param->pin_req.bda, true, 16, pin_code);
             } else {
-                ESP_LOGI(SPP_TAG, "Input pin code: 1234");
+                ESP_LOGI(TAG, "Input pin code: 1234");
                 esp_bt_pin_code_t pin_code;
                 pin_code[0] = '1';
                 pin_code[1] = '2';
@@ -47,13 +47,14 @@ static void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *pa
             }
             break;
         }
+        default:
+            ESP_LOGW(TAG, "Unhandled GAP event: %d", event);
+            break;
     }
 }
 
 // Serial port protocol event hanlder
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
-    char bda_str[18];
-
     switch (event){
         case ESP_SPP_INIT_EVT:{
             ESP_LOGE(TAG, "SPP initialized");
@@ -120,17 +121,27 @@ bool startBtServer(){
     }
 
     if ((err = esp_bt_gap_register_callback(esp_bt_gap_cb)) != ESP_OK) {
-        ESP_LOGE(TAG, "%s gap register failed: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "%s gap register failed: %s", __func__, esp_err_to_name(err));
         return false;
     }
 
     if ((err = esp_spp_register_callback(esp_spp_cb)) != ESP_OK) {
-        ESP_LOGE(TAG, "%s spp register failed: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "%s spp register failed: %s", __func__, esp_err_to_name(err));
         return false;
     }
 
-    esp_bt_dev_set_device_name(BT_SERVER_NAME);
-    esp_spp_init(ESP_SPP_MODE_CB);
+    esp_bt_gap_set_device_name(BT_SERVER_NAME);
+
+    esp_spp_cfg_t bt_spp_cfg = {
+        .mode = ESP_SPP_MODE_CB,
+        .enable_l2cap_ertm = true,
+        .tx_buffer_size = 0,
+    };
+
+    if ((err = esp_spp_enhanced_init(&bt_spp_cfg)) != ESP_OK) {
+        ESP_LOGE(TAG, "%s spp init failed: %s", __func__, esp_err_to_name(err));
+        return false;
+    }
 
     return true;
 }
