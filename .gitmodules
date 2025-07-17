@@ -1,0 +1,6 @@
+[submodule "ESP32-OV2640-PetCam/lib/lib/cJSON"]
+	path = ESP32-OV2640-PetCam/lib/lib/cJSON
+	url = https://github.com/DaveGamble/cJSON.git
+[submodule "ESP32-OV2640-PetCam/lib/cJSON"]
+	path = ESP32-OV2640-PetCam/lib/cJSON
+	url = https://github.com/DaveGamble/cJSON.git
