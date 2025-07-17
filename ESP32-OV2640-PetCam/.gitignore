@@ -7,4 +7,5 @@
 *.pyc
 *.DS_Store
 
-include/keys.h
+components/MyLib/include/keys.h
+*sdkconfig.*
