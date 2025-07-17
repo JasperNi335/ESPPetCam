@@ -53,7 +53,7 @@ esp_err_t get_stream_handler(httpd_req_t* request) {
 
     response = httpd_resp_set_type(request, _STREAM_CONTENT_TYPE);
     if (response != ESP_OK){
-        ESP_LOGE(TAG, "There was an error setting request type, Error: %s", response);
+        ESP_LOGE(TAG, "There was an error setting request type, Error: %s", esp_err_to_name(response));
         return response;
     }
 
@@ -113,7 +113,7 @@ httpd_handle_t startServer(){
 
     esp_err_t err = httpd_start(&server, &config);
     if (err != ESP_OK){
-        ESP_LOGE(TAG, "Failed to start server, Error: %s", err);
+        ESP_LOGE(TAG, "Failed to start server, Error: %s", esp_err_to_name(err));
     }else{
         httpd_register_uri_handler(server, &uri_get);
     }

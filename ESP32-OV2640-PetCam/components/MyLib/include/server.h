@@ -1,7 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <Arduino.h>
 #include <string.h>
 #include "esp_https_server.h"
 #include "esp_random.h"
