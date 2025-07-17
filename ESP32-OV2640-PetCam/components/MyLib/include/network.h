@@ -1,7 +1,6 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include <Arduino.h>
 #include <String.h>
 #include "esp_wifi.h"
 #include "esp_event.h"

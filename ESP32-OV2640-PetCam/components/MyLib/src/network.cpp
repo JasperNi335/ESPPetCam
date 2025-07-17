@@ -66,13 +66,10 @@ void initWiFi(){
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-bool scanWiFi(String ssid_target){
-    wifi_scan_config_t scan = {
-        .ssid = 0,
-        .bssid = 0,
-        .channel = 0,
-        .show_hidden = true,
-    };
+bool scanWiFi(const char* ssid_target){
+    wifi_scan_config_t scan = {};
+    scan.home_chan_dwell_time = 0; // Explicitly initialize to default value
+    scan.show_hidden = true;
 
     ESP_LOGE(TAG, "Scanning for avaliable WiFi Networks");
     ESP_ERROR_CHECK(esp_wifi_scan_start(&scan, true));
@@ -89,7 +86,7 @@ bool scanWiFi(String ssid_target){
     for (int i = 0; i < ap_num; i++){
         ESP_LOGE(TAG, "SSID = %s | RSSI = %d", ap_info[i].ssid, ap_info[i].rssi);
         if (ssid_target){
-            if (strcmp((const char *)ap_info[i].ssid, ssid_target.c_str()) == 0){
+            if (strcmp((const char *)ap_info[i].ssid, ssid_target) == 0){
                 targetFound = true;
                 ESP_LOGE(TAG, "Target SSID: %s found", ssid_target);
             }
@@ -100,12 +97,12 @@ bool scanWiFi(String ssid_target){
     return targetFound;
 }
 
-void setConfigs(String ssid, String pass){
+void setConfigs(const char* ssid, const char* pass){
     memset(&wifi_config, 0, sizeof(wifi_config_t));
 
     // copy strings int to arrays
-    strcpy((char *)wifi_config.sta.ssid, ssid.c_str());
-    strcpy((char *)wifi_config.sta.password, pass.c_str());
+    strcpy((char *)wifi_config.sta.ssid, ssid);
+    strcpy((char *)wifi_config.sta.password, pass);
 
     wifi_config.sta.threshold.authmode = ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD;
 
