@@ -1,9 +1,8 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include <Arduino.h>
 #include "esp_http_client.h"
-#include "cJson.h"
+#include "cJSON.h"
 #include "camera.h"
 #include "network.h"
 

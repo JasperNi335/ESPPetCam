@@ -37,12 +37,11 @@ bool pingServer(const char* url){
     if (!isWiFiConnected()) return false;
 
     // quickly check if the server is online via get method
-    esp_http_client_config_t config = {
-        .url = url,
-        .method = HTTP_METHOD_GET,
-        .timeout_ms = 5000,
-        .event_handler = _http_event_handler,
-    };
+    esp_http_client_config_t config = {};
+    config.url = url;
+    config.method = HTTP_METHOD_GET;
+    config.timeout_ms = 5000;
+    config.event_handler = _http_event_handler;
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
     if (!client) {
@@ -69,15 +68,19 @@ bool sendToServer(const char* url, const char* data){
     if (!pingServer(url)) return false;
 
     // make client
-    esp_http_client_config_t config = {
-        .url = url,
-        .method = HTTP_METHOD_POST,
-    };
+    esp_http_client_config_t config = {};
+    config.url = url;
+    config.method = HTTP_METHOD_POST;
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_http_client_set_header(client, "Content-Type", "application/json");
 
     esp_err_t add_data = esp_http_client_set_post_field(client, data, strlen(data));
+
+    if (add_data != ESP_OK){
+        ESP_LOGE(TAG, "Failed to set post field, Error: %s", esp_err_to_name(add_data));
+        return false;
+    }
 
     esp_err_t err = esp_http_client_perform(client);
     esp_http_client_cleanup(client);
@@ -97,10 +100,9 @@ bool recieveFromServer(const char* url){
     if (!pingServer(url)) return false;
 
     // make client
-    esp_http_client_config_t config = {
-        .url = url,
-        .method = HTTP_METHOD_GET,
-    };
+    esp_http_client_config_t config = {};
+    config.url = url;
+    config.method = HTTP_METHOD_GET;
 
     esp_http_client_handle_t client = esp_http_client_init(&config);
 
