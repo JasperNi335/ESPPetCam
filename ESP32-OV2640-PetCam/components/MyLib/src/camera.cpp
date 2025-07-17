@@ -44,7 +44,11 @@ camera_config_t camera_config = {
     .pixel_format   = PIXFORMAT_JPEG,
     .frame_size     = FRAMESIZE_HVGA,
     .jpeg_quality   = 10,
-    .fb_count       = 1
+    .fb_count       = 1,
+
+    .fb_location    = CAMERA_FB_IN_PSRAM,
+    .grab_mode      = CAMERA_GRAB_WHEN_EMPTY,
+    .sccb_i2c_port  = 0  // usually 0 on ESP32
 };
 
 /*-----------------------------------------
@@ -54,10 +58,10 @@ Default Camera methods
 bool initCamera(){
     esp_err_t err = esp_camera_init(&camera_config);
     if (err != ESP_OK) {
-        Serial.printf("Camera Init Failed\n Error: 0x%x\n", err);
+        ESP_LOGE(TAG, "Camera Init Failed\nError code: 0x%x (%s)", err, esp_err_to_name(err));
         return false;
     }
-    Serial.printf("Camera Init Successful\n");
+    ESP_LOGI(TAG, "Camera Init Successful\n");
 
     // take a few starting photos to fix green tint
     for (int i = 0; i < 10; i++){
@@ -72,7 +76,7 @@ void setCameraSettings(){
     sensor_t * s = esp_camera_sensor_get();
 
     if (!s){
-        Serial.printf("Camera not Found\n");
+        ESP_LOGE(TAG, "Camera not Found\n");
     }
 
     s->set_brightness(s, 0);     // -2 to 2
@@ -98,14 +102,14 @@ void setCameraSettings(){
     s->set_dcw(s, 1);            // 0 = disable , 1 = enable
     s->set_colorbar(s, 0);       // 0 = disable , 1 = enable
 
-    Serial.printf("Camera Settings applied\n");
+    ESP_LOGI(TAG, "Camera Settings applied\n");
 }
 
 camera_fb_t* cameraCapturePhoto(){
     camera_fb_t* fb = esp_camera_fb_get();
     // if failed to capturn image
     if (!fb){
-        Serial.printf("Camera Capture Failed\n");
+        ESP_LOGE(TAG, "Camera Capture Failed\n");
         return nullptr;
     }
     return fb;
@@ -137,7 +141,7 @@ char* fb_to_b64(camera_fb_t* frame_buffer){
                                           frame_buffer->len);
 
     if (err != ESP_OK){
-        ESP_LOGE("Encode", "Encoding failed, Error: %s", err);
+        ESP_LOGE("Encode", "Encoding failed, Error: %s", esp_err_to_name(err));
         free(output_b64_buffer);
         return nullptr;
     }
@@ -153,7 +157,7 @@ void deInitCamera(){
 /*-----------------------------------------
 Serial Camera methods
 -----------------------------------------*/
-
+/* Arduino framework legacy code
 bool sendPhotoSerial(){
   // try to capture image
   camera_fb_t* fb = cameraCapturePhoto();
@@ -187,8 +191,5 @@ bool sendPhotoSerial(){
   }
   return false;
 }
-
-/*-----------------------------------------
-Wifi Camera methods
------------------------------------------*/
+*/
 

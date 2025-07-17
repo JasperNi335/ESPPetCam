@@ -1,7 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <Arduino.h>
 #include "esp_camera.h"
 #include "mbedtls/base64.h"
 #include "esp_log.h"
