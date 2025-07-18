@@ -11,4 +11,13 @@
 // start spp bluetooth server
 bool startBtServer();
 
+// start spp bluetooth
+bool startBt();
+
+// checks server status from event handler
+bool isBtServerOn();
+
+// ends spp server 
+void endBtServer();
+
 #endif // BLUETOOTH_H

@@ -2,6 +2,7 @@
 
 static const char* TAG = "Bluetooth";
 static const char* BT_SERVER_NAME = "ESP_BT_Server";
+static bool spp_server_running = false;
 
 static char *bda2str(uint8_t * bda, char *str, size_t size){
     if (bda == NULL || str == NULL || size < 18) {
@@ -12,6 +13,20 @@ static char *bda2str(uint8_t * bda, char *str, size_t size){
     sprintf(str, "%02x:%02x:%02x:%02x:%02x:%02x",
             p[0], p[1], p[2], p[3], p[4], p[5]);
     return str;
+}
+
+// spp server status event handler
+static void spp_status_handler(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
+    switch (event) {
+        case ESP_SPP_START_EVT:
+            spp_server_running = true;
+            break;
+        case ESP_SPP_CLOSE_EVT:
+            spp_server_running = false;
+            break;
+        default:
+            break;
+    }
 }
 
 // Generic access profile event handler
@@ -89,23 +104,45 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
 
 bool startBtServer(){
     esp_err_t err = ESP_OK;
-
-    initNVS();
-
-    esp_err_t release_err = esp_bt_controller_mem_release(ESP_BT_MODE_BLE);
-    if (release_err != ESP_OK && release_err != ESP_ERR_INVALID_STATE) {
-        ESP_LOGE(TAG, "BLE memory release failed: %s", esp_err_to_name(release_err));
+    if (!startBt()){
+        ESP_LOGE(TAG, "Failed to initalise bluetooth");
+        return false;
+    }
+    if ((err = esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, BT_SERVER_NAME)) != ESP_OK) {
+        ESP_LOGE(TAG, "SPP server start failed: %s", esp_err_to_name(err));
         return false;
     }
 
-    esp_bt_controller_config_t config  = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
+    return true;
+}
+
+bool startBt(){
+    esp_err_t err = ESP_OK;
+
+    initNVS();
+
+    esp_bt_controller_status_t status = esp_bt_controller_get_status();
+    ESP_LOGI(TAG, "BT controller start status: %d", status);
+    
+    if (status == ESP_BT_CONTROLLER_STATUS_ENABLED) {
+        esp_bt_controller_disable();
+    }
+    if (status == ESP_BT_CONTROLLER_STATUS_INITED) {
+        esp_bt_controller_deinit();
+    }
+
+    esp_bt_controller_config_t config = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
     if ((err = esp_bt_controller_init(&config)) != ESP_OK){
         ESP_LOGE(TAG, "Error intialising bluetooth, Error: %s", esp_err_to_name(err));
         return false;
     }
 
-    if ((err = esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) != ESP_OK){
+    status = esp_bt_controller_get_status();
+    ESP_LOGI(TAG, "BT controller status: %d", status);
+
+    if ((err = esp_bt_controller_enable(BTDM_CONTROLLER_MODE_EFF)) != ESP_OK){
         ESP_LOGE(TAG, "Error enabling classic bluetooth, Error: %s", esp_err_to_name(err));
         return false;
     }
@@ -144,4 +181,26 @@ bool startBtServer(){
     }
 
     return true;
+}
+
+bool isBtServerOn(){
+    return spp_server_running;
+}
+
+void endBtServer(){
+    esp_err_t err = esp_spp_deinit();
+    if (err != ESP_OK){
+        ESP_LOGE(TAG, "Failed to deinit esp spp, Error: %s", esp_err_to_name(err));
+    }
+
+    esp_bt_controller_status_t status = esp_bt_controller_get_status();
+    ESP_LOGI(TAG, "BT controller status: %d", status);
+    
+    if (status == ESP_BT_CONTROLLER_STATUS_ENABLED) {
+        esp_bt_controller_disable();
+    }
+    if (status == ESP_BT_CONTROLLER_STATUS_INITED) {
+        esp_bt_controller_deinit();
+    }
+    ESP_LOGI(TAG, "Ended bluetooth server");
 }
