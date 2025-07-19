@@ -15,7 +15,7 @@ bool startBtServer();
 bool startBt();
 
 // checks server status from event handler
-bool isBtServerOn();
+bool getBtServerStatus();
 
 // ends spp server 
 void endBtServer();

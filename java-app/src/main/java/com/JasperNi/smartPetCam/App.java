@@ -25,6 +25,9 @@ public class App {
         server.createContext("/upload", new UploadHandler());
         server.createContext("/view_image", new ImageHandler());
         server.createContext("/stream", new StreamHandler());
+        //------------------------------------------------------------------------------------------------------
+        // make a new context for a gui that connects to python bluetooth spp wifi credential forwarding page
+        //------------------------------------------------------------------------------------------------------
 
         server.setExecutor(null); // default executor
         server.start();

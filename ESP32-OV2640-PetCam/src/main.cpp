@@ -57,7 +57,9 @@ void loop() {
     }
     */
 
-    getServerStatus();
+    //getServerStatus();
+
+    getBtServerStatus();
 
     vTaskDelay(pdMS_TO_TICKS(5000));  // Delay 5 seconds
 }
